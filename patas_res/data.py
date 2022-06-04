@@ -40,9 +40,11 @@ def example_from_characters(source: list[str], target: list[str], bos: str, eos:
 
 class Seq2SeqDataset(Dataset):
     """
-
+    A dataset for sequence to sequence pairs that inherits from Dataset class. Contains examples, a vocabulary, 
+    number of labels, and one hots for the labels. Examples can be read in from files. Each example is indexed and 
+    can be obtained by passing in the index to the example_to_indices function. Examples can also be batched over 
+    index ranges.
     """
-
     BOS = "<s>"
     EOS = "</s>"
     PAD = "<PAD>"
@@ -65,6 +67,17 @@ class Seq2SeqDataset(Dataset):
         }
 
     def batch_as_tensors(self, start: int, end: int) -> dict[str, Any]:
+        """
+        This method pulls examples within a given index range and adds padding to the examples. Collects and returns
+        a dictionary with keys into various features of the examples.
+        Args:
+            start: lower bound index of the range of examples to pull
+            end: upper bound index of the the range of examples to pull.
+        Returns: a dictionary with 4 key-value pairs: the source is padded text used as input to the encoder;
+         the target x is the input sequence of tokens to the decoder,
+         the target y is the output sequence from the decoder.
+         the lengths is a tuple of the lengths of source sequence and target sequence.
+        """
         examples = [self.example_to_indices(index) for index in range(start, end)]
         padding_index = self.vocab[Seq2SeqDataset.PAD]
         # pad texts to [batch_size, max_seq_len] array
@@ -83,6 +96,17 @@ class Seq2SeqDataset(Dataset):
 
     @classmethod
     def from_files(cls, source_file: str, target_file: str, vocab: Vocabulary = None):
+        """
+        Use sequences from source and target file to create examples for the seq2seq dataset. Creates vocabulary from
+         examples if it doesn't exist yet.
+        Args:
+            source_file: the source file for example creation
+            target_file: the target file for example creation
+            vocab: the vocabulary to pass in. Defaults to None.
+
+        Returns: examples and vocab, setting those variables for the Seq2SeqDataset class state.
+
+        """
         examples = []
         counter: Counter = Counter()
         source_lines = [line.strip('\n').lower() for line in open(source_file, 'r')]

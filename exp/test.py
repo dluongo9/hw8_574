@@ -22,7 +22,7 @@ mask = np.array([[0, 0, 0, 0], [0, 0, 0, -np.inf], [0, 0, -np.inf, -np.inf]])
 masked_compat = compatibility + mask
 print(masked_compat)
 attention = torch.softmax(torch.tensor(masked_compat), 1)
-print(attention)
+print("right anser", attention)
 attention_2 = softmax(masked_compat)
 print(attention_2)
 # denom = np.sum(np.exp(masked_compat))
